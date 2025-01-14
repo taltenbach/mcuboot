@@ -30,13 +30,11 @@ boot_image_validate_encrypted(const struct flash_area *fa_p,
     struct boot_loader_state *state = &boot_data;
     struct boot_status _bs;
     struct boot_status *bs = &_bs;
-    uint8_t image_index;
     int rc;
 
     memset(&boot_data, 0, sizeof(struct boot_loader_state));
-    image_index = BOOT_CURR_IMG(state);
     if(IS_ENCRYPTED(hdr)) {
-        rc = boot_enc_load(BOOT_CURR_ENC(state), image_index, hdr, fa_p, bs);
+        rc = boot_enc_load(state, image_index, hdr, fa_p, bs);
         if (rc < 0) {
             FIH_RET(fih_rc);
         }
@@ -44,12 +42,12 @@ boot_image_validate_encrypted(const struct flash_area *fa_p,
         if (rc < 0) {
             FIH_RET(fih_rc);
         }
-        rc = boot_enc_set_key(BOOT_CURR_ENC(state), 1, bs);
+        rc = boot_enc_set_key(state, 1, bs);
         if (rc < 0) {
             FIH_RET(fih_rc);
         }
     }
-    FIH_CALL(bootutil_img_validate, fih_rc, BOOT_CURR_ENC(state), image_index,
+    FIH_CALL(bootutil_img_validate, fih_rc, state,
              hdr, fa_p, buf, buf_size, NULL, 0, NULL);
 
     FIH_RET(fih_rc);
@@ -245,7 +243,7 @@ decrypt_image_inplace(const struct flash_area *fa_p,
 #endif
         memset(&boot_data, 0, sizeof(struct boot_loader_state));
         /* Load the encryption keys into cache */
-        rc = boot_enc_load(BOOT_CURR_ENC(state), image_index, hdr, fa_p, bs);
+        rc = boot_enc_load(state, image_index, hdr, fa_p, bs);
         if (rc < 0) {
             FIH_RET(fih_rc);
         }

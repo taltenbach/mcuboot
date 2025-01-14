@@ -604,10 +604,11 @@ boot_enc_decrypt(const uint8_t *buf, uint8_t *enckey)
  * Load encryption key.
  */
 int
-boot_enc_load(struct enc_key_data *enc_state, int image_index,
+boot_enc_load(struct boot_loader_state *state, int image_index,
         const struct image_header *hdr, const struct flash_area *fap,
         struct boot_status *bs)
 {
+    struct enc_key_data *enc_state = BOOT_CURR_ENC(state);
     uint32_t off;
     uint16_t len;
     struct image_tlv_iter it;

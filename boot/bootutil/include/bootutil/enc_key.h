@@ -47,12 +47,13 @@ struct enc_key_data {
 
 extern const struct bootutil_key bootutil_enc_key;
 struct boot_status;
+struct boot_loader_state;
 
 int boot_enc_init(struct enc_key_data *enc_state, uint8_t slot);
 int boot_enc_drop(struct enc_key_data *enc_state, uint8_t slot);
 int boot_enc_set_key(struct enc_key_data *enc_state, uint8_t slot,
         const struct boot_status *bs);
-int boot_enc_load(struct enc_key_data *enc_state, int image_index,
+int boot_enc_load(struct boot_loader_state *state, int image_index,
         const struct image_header *hdr, const struct flash_area *fap,
         struct boot_status *bs);
 int boot_enc_decrypt(const uint8_t *buf, uint8_t *enckey);
