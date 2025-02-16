@@ -149,6 +149,18 @@ impl AreaDesc {
     pub fn iter_areas(&self) -> impl Iterator<Item = &FlashArea> {
         self.whole.iter()
     }
+
+    /// Return the list of sectors of a given flash area.
+    pub fn get_area_sectors(&self, flash_id: FlashId) -> Option<&Vec<FlashArea>> {
+        self.areas.iter()
+            .filter(|area| !area.is_empty())
+            .find(|area| area[0].flash_id == flash_id)
+    }
+
+    // /// Return a given flash area
+    // pub fn get_area(&self, flash_id: FlashId) -> Option<&FlashArea> {
+    //     self.whole.iter().find(|area| area.flash_id == flash_id)
+    // }
 }
 
 /// The area descriptor, C format.

@@ -518,6 +518,8 @@ bootutil_img_validate(struct boot_loader_state *state,
     FIH_DECLARE(security_counter_valid, FIH_FAILURE);
 #endif
 
+MCUBOOT_LOG_ERR("VALIDATING");
+
 #if defined(EXPECTED_HASH_TLV) && !defined(MCUBOOT_SIGN_PURE)
 #if defined(MCUBOOT_SWAP_USING_OFFSET) && defined(MCUBOOT_SERIAL_RECOVERY)
     rc = bootutil_img_hash(state, hdr, fap, tmp_buf, tmp_buf_sz, hash, seed, seed_len,
@@ -556,6 +558,7 @@ bootutil_img_validate(struct boot_loader_state *state,
     }
 
     if (it.tlv_end > bootutil_max_image_size(fap)) {
+        MCUBOOT_LOG_ERR("MAX IMG SIZE ERR");
         rc = -1;
         goto out;
     }
@@ -608,6 +611,7 @@ bootutil_img_validate(struct boot_loader_state *state,
 
             FIH_CALL(boot_fih_memequal, fih_rc, hash, buf, sizeof(hash));
             if (FIH_NOT_EQ(fih_rc, FIH_SUCCESS)) {
+                MCUBOOT_LOG_ERR("HASH ERR");
                 FIH_SET(fih_rc, FIH_FAILURE);
                 goto out;
             }
@@ -741,6 +745,8 @@ bootutil_img_validate(struct boot_loader_state *state,
 #endif
 
 out:
+    MCUBOOT_LOG_ERR("RESULT: %d", rc);
+
     if (rc) {
         FIH_SET(fih_rc, FIH_FAILURE);
     }

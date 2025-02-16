@@ -119,6 +119,10 @@ pub fn boot_trailer_sz(align: u32) -> u32 {
     unsafe { raw::boot_trailer_sz(align) }
 }
 
+// pub fn boot_trailer_info_sz() -> u32 {
+//     unsafe { raw::boot_trailer_info_sz() }
+// }
+
 pub fn boot_status_sz(align: u32) -> u32 {
     unsafe { raw::boot_status_sz(align) }
 }
@@ -178,6 +182,7 @@ mod raw {
             rsp: *mut BootRsp, image_index: libc::c_int) -> libc::c_int;
 
         pub fn boot_trailer_sz(min_write_sz: u32) -> u32;
+        //pub fn boot_trailer_info_sz() -> u32;
         pub fn boot_status_sz(min_write_sz: u32) -> u32;
 
         pub fn boot_magic_sz() -> u32;
