@@ -433,6 +433,8 @@ impl ImagesBuilder {
 
     /// Build the Flash and area descriptor for a given device.
     pub fn make_device(device: DeviceName, align: usize, erased_val: u8) -> (SimMultiFlash, Rc<AreaDesc>, &'static [Caps]) {
+        info!("DEVICE: {:?}", device);
+
         match device {
             DeviceName::Stm32f4 => {
                 // STM style flash.  Large sectors, with a large scratch area.
@@ -818,7 +820,7 @@ impl Images {
 
         info!("Try norevert");
 
-        // flash.get(&0).unwrap().write_file("init.mcubin").unwrap();
+        flash.get(&0).unwrap().write_file("init.mcubin").unwrap();
 
         // First do a normal upgrade...
         if !c::boot_go(&mut flash, &self.areadesc, None, None, false).success() {
@@ -1751,8 +1753,6 @@ fn tralier_estimation(dev: &dyn Flash) -> usize {
 }
 
 fn image_largest_trailer(dev: &dyn Flash) -> usize {
-    // Using the header size we know, the trailer size, and the slot size, we can compute
-    // the largest image possible.
     let trailer = if Caps::OverwriteUpgrade.present() {
         // This computation is incorrect, and we need to figure out the correct size.
         // c::boot_status_sz(dev.align() as u32) as usize
@@ -1920,6 +1920,10 @@ fn install_image(flash: &mut SimMultiFlash, slots: &[SlotInfo], slot_ind: usize,
     }
     let mut b_tlv = tlv.make_tlv();
 
+    info!("b_tlv: {}", b_tlv.len());
+    info!("b_img: {}", b_img.len());
+    info!("b_header: {}", b_header.len());
+
     let mut buf = vec![];
     buf.append(&mut b_header.to_vec());
     buf.append(&mut b_img);
@@ -1931,6 +1935,8 @@ fn install_image(flash: &mut SimMultiFlash, slots: &[SlotInfo], slot_ind: usize,
     while buf.len() % align != 0 {
         buf.push(dev.erased_val());
     }
+
+    info!("img_size: {}, align: {}, buf_size: {}", image_sz, align, buf.len());
 
     let mut encbuf = vec![];
     if is_encrypted {

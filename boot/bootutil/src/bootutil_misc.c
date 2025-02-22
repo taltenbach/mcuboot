@@ -331,27 +331,46 @@ boot_write_enc_key(const struct flash_area *fap, uint8_t slot,
 }
 #endif
 
-uint32_t bootutil_max_image_size(const struct flash_area *fap)
+uint32_t bootutil_max_image_size(const struct boot_loader_state *state, const struct flash_area *fap)
 {
 #if defined(MCUBOOT_SWAP_USING_SCRATCH) || defined(MCUBOOT_SINGLE_APPLICATION_SLOT) || \
     defined(MCUBOOT_FIRMWARE_LOADER) || defined(MCUBOOT_SINGLE_APPLICATION_SLOT_RAM_LOAD)
+    (void) state;
     return boot_status_off(fap);
 #elif defined(MCUBOOT_SWAP_USING_MOVE) || defined(MCUBOOT_SWAP_USING_OFFSET)
+    (void) fap;
+
+    const struct flash_area *fap_padded_slot;
+
+#if defined(MCUBOOT_SWAP_USING_MOVE)
+    fap_padded_slot = BOOT_IMG_AREA(state, BOOT_PRIMARY_SLOT);
+#else
+    fap_padded_slot = BOOT_IMG_AREA(state, BOOT_SECONDARY_SLOT);
+#endif
+
+    assert(fap_padded_slot != NULL);
+
     struct flash_sector sector;
     /* get the last sector offset */
-    int rc = flash_area_get_sector(fap, boot_status_off(fap), &sector);
+    int rc = flash_area_get_sector(fap_padded_slot, boot_status_off(fap_padded_slot), &sector);
     if (rc) {
         BOOT_LOG_ERR("Unable to determine flash sector of the image trailer");
         return 0; /* Returning of zero here should cause any check which uses
                    * this value to fail.
                    */
     }
-    return flash_sector_get_off(&sector);
+
+    assert(flash_sector_get_off(&sector) != 0);
+
+    return flash_sector_get_off(&sector) - flash_sector_get_size(&sector);
 #elif defined(MCUBOOT_OVERWRITE_ONLY)
+    (void) state;
     return boot_swap_info_off(fap);
 #elif defined(MCUBOOT_DIRECT_XIP)
+    (void) state;
     return boot_swap_info_off(fap);
 #elif defined(MCUBOOT_RAM_LOAD)
+    (void) state;
     return boot_swap_info_off(fap);
 #endif
 }
